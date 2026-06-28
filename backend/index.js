@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 require('dotenv').config();
-require('./models/db');
+const connectDB = require('./models/db');
 const PORT = process.env.PORT || 8080;
 
 const TaskRouter = require('./routes/taskrouter');
@@ -16,6 +16,15 @@ app.get('/', (req, res) => {
 app.use(cors())
 
 app.use(bodyParser.json());
+
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        res.status(500).json({ message: 'Database connection failed', success: false });
+    }
+});
 
 app.use('/tasks', TaskRouter)
 
